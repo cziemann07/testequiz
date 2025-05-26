@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Gênio Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #046E8F;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .quiz-container {
+      background-color: #3B0A4D;
+      padding: 40px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 900px;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative;
+    }
+
+    .question {
+      font-size: 28px;
+      margin-bottom: 40px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .options button {
+      padding: 25px 15px;
+      border: none;
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      min-height: 100px;
+    }
+
+    .options button:hover {
+      transform: scale(1.03);
+      opacity: 0.9;
+    }
+
+    .blue { background-color: #3f51b5; }
+    .teal { background-color: #009688; }
+    .yellow { background-color: #fbc02d; color: #222; }
+    .red { background-color: #e53935; }
+
+    .buttons-end {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .buttons-end button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #009688;
+      color: white;
+    }
+
+    .ranking {
+      margin-left: 30px;
+      background-color: #1d4566;
+      padding: 20px;
+      border-radius: 10px;
+      width: 200px;
+      height: fit-content;
+    }
+
+    .ranking h3 {
+      margin-bottom: 15px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .hint-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hint-button img {
+      width: 30px;
+      height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main">
+    <div class="quiz-container">
+      <button class="hint-button" onclick="mostrarDica()">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Dica">
+      </button>
+      <div class="question" id="question">Carregando pergunta...</div>
+      <div class="options" id="options"></div>
+      <div class="buttons-end" id="buttons-end" style="display: none;">
+        <button onclick="reiniciarQuiz()">Recomeçar</button>
+        <button onclick="alert('Mais quizzes em breve!')">Ver mais quizzes</button>
+      </div>
+    </div>
+    <div class="ranking">
+      <h3>Seu Progresso</h3>
+      <p id="score">0 / 0</p>
+    </div>
+  </div>
+
+  <footer>
+    Feito por mim — contato: <strong>carlosziemanns@gmail.com</strong>
+  </footer>
+
+  <script>
+    const perguntas = [
+      {
+        pergunta: "João é mais velho que Maria. Maria é mais velha que Ana. Quem é a mais nova?",
+        opcoes: ["João", "Maria", "Ana", "Não é possível saber"],
+        correta: 2,
+        dica: "Lembre da ordem de idade: João > Maria > Ana."
+      },
+      {
+        pergunta: "Qual das alternativas representa um ácido?",
+        opcoes: ["NaCl", "HCl", "KOH", "CaCO³"],
+        correta: 1,
+        dica: "Ácidos costumam começar com H."
+      },
+      {
+        pergunta: "Qual é a capital do Brasil?",
+        opcoes: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"],
+        correta: 2,
+        dica: "Foi fundada em 1960 para ser a capital."
+      },
+      {
+        pergunta: "Se 5 máquinas fazem 5 peças em 5 minutos, quanto tempo 100 máquinas levam para fazer 100 peças?",
+        opcoes: ["100 minutos", "5 minutos", "1 minuto", "10 minutos"],
+        correta: 1,
+        dica: "Cada máquina faz 1 peça em 5 minutos."
+      },
+      {
+        pergunta: "Qual é o próximo número na sequência: 2, 4, 8, 16, ?",
+        opcoes: ["18", "22", "48", "32"],
+        correta: 3,
+        dica: "A sequência dobra a cada passo."
+      },
+      {
+        pergunta: "Qual o melhor signo que existe, segundo especialistas?",
+        opcoes: ["virgem", "touro", "câncer", "leão"],
+        correta: 2,
+        dica: "É um signo de água."
+      },
+      {
+        pergunta: "Qual planeta é conhecido por ser o Planeta Vermelho?",
+        opcoes: ["Terra", "Vênus","Marte", "Mercúrio"],
+        correta: 2,
+        dica: "Pelo amor de Deus, né?"
+      },
+      {
+        pergunta: "Um número inteiro de quatro dígitos tem a seguinte propriedade: Quando os dois primeiros dígitos são somados aos dois últimos, o resultado é 100. Quando os dois primeiros são subtraídos dos dois últimos, o resultado é 24. Qual é o número?",
+        opcoes: ["3658", "3858", "6258", "7458"],
+        correta: 2,
+        dica: "Boa sorte."
+      },
+      {
+        pergunta: "Qual dessas partículas tem carga negativa?",
+        opcoes: ["fóton", "elétron", "nêutron", "próton"],
+        correta: 1,
+        dica: "É aquela que gira em torno do núcleo."
+      }
+    ];
+
+    let indiceAtual = 0;
+    let acertos = 0;
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const scoreEl = document.getElementById("score");
+    const buttonsEndEl = document.getElementById("buttons-end");
+
+    function carregarPergunta() {
+      const atual = perguntas[indiceAtual];
+      questionEl.textContent = atual.pergunta;
+      optionsEl.innerHTML = "";
+
+      const cores = ["blue", "teal", "yellow", "red"];
+
+      atual.opcoes.forEach((opcao, index) => {
+        const botao = document.createElement("button");
+        botao.textContent = opcao;
+        botao.classList.add(cores[index % cores.length]);
+        botao.onclick = () => verificarResposta(index);
+        optionsEl.appendChild(botao);
+      });
+
+      atualizarScore();
+    }
+
+    function verificarResposta(indiceEscolhido) {
+      const correta = perguntas[indiceAtual].correta;
+
+      if (indiceEscolhido === correta) {
+        acertos++;
+        indiceAtual++;
+        if (indiceAtual < perguntas.length) {
+          carregarPergunta();
+        } else {
+          questionEl.textContent = "Parabéns! Você concluiu o quiz! 👏";
+          optionsEl.innerHTML = "";
+          buttonsEndEl.style.display = "flex";
+        }
+      } else {
+        questionEl.textContent = "Errou! Tente novamente 😜";
+        optionsEl.innerHTML = "";
+        indiceAtual = 0;
+        acertos = 0;
+        setTimeout(() => {
+          carregarPergunta();
+        }, 2000);
+      }
+
+      atualizarScore();
+    }
+
+    function atualizarScore() {
+      scoreEl.textContent = `${acertos} / ${perguntas.length}`;
+    }
+
+    function reiniciarQuiz() {
+      indiceAtual = 0;
+      acertos = 0;
+      buttonsEndEl.style.display = "none";
+      carregarPergunta();
+    }
+
+    function mostrarDica() {
+      const dica = perguntas[indiceAtual].dica || "Sem dica para essa pergunta.";
+      alert("Dica: " + dica);
+    }
+
+    carregarPergunta();
+  </script>
+</body>
+</html>
