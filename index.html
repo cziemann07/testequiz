@@ -192,18 +192,16 @@
   </style>
 </head>
 <body>
-
-  <!-- TELA INICIAL -->
   <div id="inicio">
     <div class="welcome-card">
       <h2>Bem-vindo ao Mini Gênio Quiz!</h2>
       <p>Digite seu nome para começar:</p>
-      <input type="text" id="nomeUsuario" placeholder="Seu nome">
+      <label for="nomeUsuario">Digite seu nome:</label>
+      <input type="text" id="nomeUsuario" name="nomeUsuario" autofocus aria-label="Nome do usuário">
       <button onclick="iniciarQuiz()">Começar</button>
     </div>
   </div>
-
-  <!-- QUIZ -->
+  
   <div class="main" style="display: none;">
     <div class="ranking geral">
       <h3>Ranking Geral</h3>
@@ -238,18 +236,20 @@
     let rankingUsuarios = JSON.parse(localStorage.getItem("ranking")) || {};
 
     function iniciarQuiz() {
-    const nomeInput = document.getElementById("nomeUsuario");
-    const nome = nomeInput.value.trim();
+        const nomeInput = document.getElementById("nomeUsuario");
+        const nome = nomeInput.value.trim();
 
         if (nome === "") {
             alert("Digite seu nome para começar!");
-         return;
+            return;
         }
 
-    usuarioAtual = nome;
-    document.getElementById("inicio").style.display = "none";
-    document.querySelector(".main").style.display = "flex";
+        usuarioAtual = nome;
+        document.getElementById("inicio").style.display = "none";
+        document.querySelector(".main").style.display = "flex";
 
+        indiceAtual = 0; // Reinicia índice ao começar
+        acertos = 0; // Reinicia acertos
         carregarPergunta();
         exibirRanking();
         }
@@ -308,7 +308,74 @@
         opcoes: ["fóton", "elétron", "nêutron", "próton"],
         correta: 1,
         dica: "É aquela que gira em torno do núcleo."
+      },
+      {
+        pergunta: "Qual é o maior planeta do sistema solar?",
+        opcoes: ["Terra", "Júpiter", "Saturno", "Netuno"],
+        correta: 1,
+        dica: "É um gigante gasoso com a Grande Mancha Vermelha."
+      },
+      {
+        pergunta: "Quem escreveu 'Dom Casmurro'?",
+        opcoes: ["José de Alencar", "Machado de Assis", "Clarice Lispector", "Carlos Drummond de Andrade"],
+        correta: 1,
+        dica: "Considerado um dos maiores escritores do realismo brasileiro."
+      },
+      {
+        pergunta: "Qual é a capital da Austrália?",
+        opcoes: ["Sydney", "Melbourne", "Canberra", "Perth"],
+        correta: 2,
+        dica: "É uma cidade planejada entre Sydney e Melbourne."
+      },
+      {
+        pergunta: "Em que ano o homem pisou na Lua pela primeira vez?",
+        opcoes: ["1965", "1969", "1972", "1975"],
+        correta: 1,
+        dica: "Foi durante a missão Apollo 11."
+      },
+      {
+        pergunta: "Qual o elemento químico representado por 'O'?",
+        opcoes: ["Ouro", "Oxigênio", "Osmio", "Óxido"],
+        correta: 1,
+        dica: "É essencial para a respiração."
+      },
+      {
+        pergunta: "Quem pintou a Mona Lisa?",
+        opcoes: ["Michelangelo", "Leonardo da Vinci", "Van Gogh", "Pablo Picasso"],
+        correta: 1,
+        dica: "Também foi um inventor e cientista renascentista."
+      },
+      {
+        pergunta: "Qual país é conhecido como 'Terra do Sol Nascente'?",
+        opcoes: ["China", "Japão", "Coreia do Sul", "Índia"],
+        correta: 1,
+        dica: "É uma nação insular com cultura milenar."
+      },
+      {
+        pergunta: "Quantos segundos tem uma hora?",
+        opcoes: ["600", "3600", "1600", "1000"],
+        correta: 1,
+        dica: "60 minutos vezes 60 segundos."
+      },
+      {
+        pergunta: "Qual é o idioma mais falado no mundo?",
+        opcoes: ["Inglês", "Chinês Mandarim", "Espanhol", "Hindi"],
+        correta: 1,
+        dica: "Tem mais de um bilhão de falantes nativos."
+      },
+      {
+        pergunta: "O que mede um sismógrafo?",
+        opcoes: ["Velocidade do vento", "Radiação", "Atividade sísmica", "Temperatura"],
+        correta: 2,
+        dica: "Serve para detectar terremotos."
+      },
+      {
+        pergunta: "Quem foi o primeiro presidente do Brasil?",
+        opcoes: ["Dom Pedro II", "Getúlio Vargas", "Deodoro da Fonseca", "Floriano Peixoto"],
+        correta: 2,
+        dica: "Foi um marechal que proclamou a República."
       }
+
     ];
 
     let indiceAtual = 0;
@@ -339,41 +406,52 @@
     }
 
     function verificarResposta(indiceEscolhido) {
-      const correta = perguntas[indiceAtual].correta;
+        const correta = perguntas[indiceAtual].correta;
+        const botoes = optionsEl.querySelectorAll("button");
 
-      if (indiceEscolhido === correta) {
-        acertos++;
-        indiceAtual++;
-        if (indiceAtual < perguntas.length) {
-          carregarPergunta();
+        if (indiceEscolhido === correta) {
+            acertos++;
+            indiceAtual++;
+            if (indiceAtual < perguntas.length) {
+            carregarPergunta();
+            } else {
+            questionEl.textContent = "Parabéns! Você concluiu o quiz! 👏";
+            optionsEl.innerHTML = "";
+            buttonsEndEl.style.display = "flex";
+            salvarRanking();
+            }
         } else {
-          questionEl.textContent = "Parabéns! Você concluiu o quiz! 👏";
-          optionsEl.innerHTML = "";
-          buttonsEndEl.style.display = "flex";
-          salvarRanking();
+            // Destaca botão errado em vermelho e correto em verde
+            botoes.forEach((btn, i) => {
+            btn.disabled = true; // Desativa botões
+            if (i === correta) {
+                btn.style.backgroundColor = "#4CAF50"; // verde
+            } else if (i === indiceEscolhido) {
+                btn.style.backgroundColor = "#f44336"; // vermelho
+            }
+            });
+            questionEl.textContent = "Errou! Tente novamente 😜";
+
+            setTimeout(() => {
+            indiceAtual = 0;
+            acertos = 0;
+            carregarPergunta();
+            }, 2000);
         }
-      } else {
-        questionEl.textContent = "Errou! Tente novamente 😜";
-        optionsEl.innerHTML = "";
-        indiceAtual = 0;
-        acertos = 0;
-        setTimeout(() => {
-          carregarPergunta();
-        }, 2000);
-      }
 
-      atualizarScore();
-    }
-
+        atualizarScore();
+        }
     function atualizarScore() {
       scoreEl.textContent = `${acertos} / ${perguntas.length}`;
     }
 
-    function reiniciarQuiz() {
-      indiceAtual = 0;
-      acertos = 0;
-      buttonsEndEl.style.display = "none";
-      carregarPergunta();
+        function reiniciarQuiz() {
+    indiceAtual = 0;
+    acertos = 0;
+    buttonsEndEl.style.display = "none";
+    document.getElementById("progresso").value = 0; // Zerando barra de progresso
+    atualizarScore(); // Atualiza texto do score
+    carregarPergunta();
     }
 
     function mostrarDica() {
@@ -381,28 +459,27 @@
       alert("Dica: " + dica);
     }
 
-    carregarPergunta();
-
-    function salvarRanking() {
+   function salvarRanking() {
+  // Atualiza o ranking com a pontuação atual do usuário
   rankingUsuarios[usuarioAtual] = acertos;
-  localStorage.setItem("ranking", JSON.stringify(rankingUsuarios));
-  exibirRanking();
-}
+  localStorage.setItem("ranking", JSON.stringify(rankingUsuarios));}
 
-    function exibirRanking() {
-  const ul = document.getElementById("rankingGeral");
-  ul.innerHTML = "";
+   function exibirRanking() {
+  const rankingGeralEl = document.getElementById("rankingGeral");
+  rankingGeralEl.innerHTML = ""; // limpa a lista
 
-  // Converte para array, ordena por acertos decrescentes
-  const ordenado = Object.entries(rankingUsuarios)
-    .sort((a, b) => b[1] - a[1]);
+  // transforma objeto em array para ordenar
+  const listaOrdenada = Object.entries(rankingUsuarios)
+    .sort(([, pontosA], [, pontosB]) => pontosB - pontosA);
 
-  ordenado.forEach(([nome, pontuacao]) => {
+  // cria os itens da lista no DOM
+  listaOrdenada.forEach(([nome, pontos]) => {
     const li = document.createElement("li");
-    li.textContent = `${nome}: ${pontuacao} pts`;
-    ul.appendChild(li);
+    li.textContent = `${nome}: ${pontos} pontos`;
+    rankingGeralEl.appendChild(li);
   });
 }
+
   </script>
 </body>
 </html>
