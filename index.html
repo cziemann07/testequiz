@@ -26,6 +26,7 @@
       justify-content: center;
       align-items: flex-start;
       padding: 40px 20px;
+      gap: 30px;
     }
 
     .quiz-container {
@@ -38,6 +39,15 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       text-align: center;
       position: relative;
+    }
+
+    .ranking.geral {
+      margin-right: 30px;
+      background-color: #1d4566;
+      padding: 20px;
+      border-radius: 10px;
+      width: 200px;
+      height: fit-content;
     }
 
     .question {
@@ -118,11 +128,88 @@
       width: 30px;
       height: 30px;
     }
+
+    /* Estilização bonitinha da tela de boas-vindas */
+    #inicio {
+      text-align: center;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .welcome-card {
+      background-color: #3B0A4D;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .welcome-card h2 {
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+
+    .welcome-card p {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .welcome-card input {
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .welcome-card button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #009688;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .welcome-card button:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      background-color: #034f6b;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
 
-  <div class="main">
+  <!-- TELA INICIAL -->
+  <div id="inicio">
+    <div class="welcome-card">
+      <h2>Bem-vindo ao Mini Gênio Quiz!</h2>
+      <p>Digite seu nome para começar:</p>
+      <input type="text" id="nomeUsuario" placeholder="Seu nome">
+      <button onclick="iniciarQuiz()">Começar</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="main" style="display: none;">
+    <div class="ranking geral">
+      <h3>Ranking Geral</h3>
+      <ul id="rankingGeral" style="list-style: none; padding-left: 0;"></ul>
+    </div>
+
     <div class="quiz-container">
       <button class="hint-button" onclick="mostrarDica()">
         <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Dica">
@@ -134,17 +221,39 @@
         <button onclick="alert('Mais quizzes em breve!')">Ver mais quizzes</button>
       </div>
     </div>
+
     <div class="ranking">
       <h3>Seu Progresso</h3>
       <p id="score">0 / 0</p>
+      <progress id="progresso" value="0" max="100" style="width: 100%; height: 20px;"></progress>
     </div>
   </div>
 
   <footer>
     Feito por mim — contato: <strong>carlosziemanns@gmail.com</strong>
   </footer>
-
   <script>
+
+    let usuarioAtual = "";
+    let rankingUsuarios = JSON.parse(localStorage.getItem("ranking")) || {};
+
+    function iniciarQuiz() {
+    const nomeInput = document.getElementById("nomeUsuario");
+    const nome = nomeInput.value.trim();
+
+        if (nome === "") {
+            alert("Digite seu nome para começar!");
+         return;
+        }
+
+    usuarioAtual = nome;
+    document.getElementById("inicio").style.display = "none";
+    document.querySelector(".main").style.display = "flex";
+
+        carregarPergunta();
+        exibirRanking();
+        }
+
     const perguntas = [
       {
         pergunta: "João é mais velho que Maria. Maria é mais velha que Ana. Quem é a mais nova?",
@@ -189,10 +298,10 @@
         dica: "Pelo amor de Deus, né?"
       },
       {
-        pergunta: "Um número inteiro de quatro dígitos tem a seguinte propriedade: Quando os dois primeiros dígitos são somados aos dois últimos, o resultado é 100. Quando os dois primeiros são subtraídos dos dois últimos, o resultado é 24. Qual é o número?",
-        opcoes: ["3658", "3858", "6258", "7458"],
-        correta: 2,
-        dica: "Boa sorte."
+        pergunta: "Um número de quatro dígitos possui a seguinte propriedade: a soma dos dois primeiros dígitos com os dois   últimos resulta em 100. A diferença entre os dois últimos e os dois primeiros é 24. Qual é o número?",
+        opcoes: ["6238", "3858", "7458", "2432"],
+        correta: 0,
+        dica: "Monte o sistema: AB + CD = 100 e CD - AB = 24. Pense em AB e CD como números de dois dígitos."
       },
       {
         pergunta: "Qual dessas partículas tem carga negativa?",
@@ -213,6 +322,8 @@
       const atual = perguntas[indiceAtual];
       questionEl.textContent = atual.pergunta;
       optionsEl.innerHTML = "";
+
+      document.getElementById("progresso").value = (indiceAtual / perguntas.length) * 100;
 
       const cores = ["blue", "teal", "yellow", "red"];
 
@@ -239,6 +350,7 @@
           questionEl.textContent = "Parabéns! Você concluiu o quiz! 👏";
           optionsEl.innerHTML = "";
           buttonsEndEl.style.display = "flex";
+          salvarRanking();
         }
       } else {
         questionEl.textContent = "Errou! Tente novamente 😜";
@@ -270,6 +382,27 @@
     }
 
     carregarPergunta();
+
+    function salvarRanking() {
+  rankingUsuarios[usuarioAtual] = acertos;
+  localStorage.setItem("ranking", JSON.stringify(rankingUsuarios));
+  exibirRanking();
+}
+
+    function exibirRanking() {
+  const ul = document.getElementById("rankingGeral");
+  ul.innerHTML = "";
+
+  // Converte para array, ordena por acertos decrescentes
+  const ordenado = Object.entries(rankingUsuarios)
+    .sort((a, b) => b[1] - a[1]);
+
+  ordenado.forEach(([nome, pontuacao]) => {
+    const li = document.createElement("li");
+    li.textContent = `${nome}: ${pontuacao} pts`;
+    ul.appendChild(li);
+  });
+}
   </script>
 </body>
 </html>
