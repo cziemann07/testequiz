@@ -129,7 +129,6 @@
       height: 30px;
     }
 
-    /* Estilização bonitinha da tela de boas-vindas */
     #inicio {
       text-align: center;
       padding: 60px 20px;
@@ -248,8 +247,8 @@
         document.getElementById("inicio").style.display = "none";
         document.querySelector(".main").style.display = "flex";
 
-        indiceAtual = 0; // Reinicia índice ao começar
-        acertos = 0; // Reinicia acertos
+        indiceAtual = 0; 
+        acertos = 0;
         carregarPergunta();
         exibirRanking();
         }
@@ -451,13 +450,13 @@
             salvarRanking();
             }
         } else {
-            // Destaca botão errado em vermelho e correto em verde
+           
             botoes.forEach((btn, i) => {
-            btn.disabled = true; // Desativa botões
+            btn.disabled = true; 
             if (i === correta) {
-                btn.style.backgroundColor = "#4CAF50"; // verde
+                btn.style.backgroundColor = "#4CAF50"; 
             } else if (i === indiceEscolhido) {
-                btn.style.backgroundColor = "#f44336"; // vermelho
+                btn.style.backgroundColor = "#f44336"; 
             }
             });
             questionEl.textContent = "Errou! Tente novamente 😜";
@@ -479,8 +478,8 @@
     indiceAtual = 0;
     acertos = 0;
     buttonsEndEl.style.display = "none";
-    document.getElementById("progresso").value = 0; // Zerando barra de progresso
-    atualizarScore(); // Atualiza texto do score
+    document.getElementById("progresso").value = 0; 
+    atualizarScore();
     carregarPergunta();
     }
 
@@ -490,19 +489,17 @@
     }
 
    function salvarRanking() {
-  // Atualiza o ranking com a pontuação atual do usuário
+  o
   rankingUsuarios[usuarioAtual] = acertos;
   localStorage.setItem("ranking", JSON.stringify(rankingUsuarios));}
 
    function exibirRanking() {
   const rankingGeralEl = document.getElementById("rankingGeral");
-  rankingGeralEl.innerHTML = ""; // limpa a lista
+  rankingGeralEl.innerHTML = ""; 
 
-  // transforma objeto em array para ordenar
   const listaOrdenada = Object.entries(rankingUsuarios)
     .sort(([, pontosA], [, pontosB]) => pontosB - pontosA);
 
-  // cria os itens da lista no DOM
   listaOrdenada.forEach(([nome, pontos]) => {
     const li = document.createElement("li");
     li.textContent = `${nome}: ${pontos} pontos`;
